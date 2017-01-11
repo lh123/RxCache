@@ -7,10 +7,11 @@ import java.lang.reflect.Type;
  * 抽象缓存接口
  */
 
-public interface ICache<T> {
-    T load(String key, Type type);
+@SuppressWarnings("WeakerAccess")
+public interface ICache {
+    Object load(String key, Type type);
 
-    boolean save(String key, T data);
+    boolean save(String key, Object data);
 
     boolean containKey(String key);
 

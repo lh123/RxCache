@@ -1,8 +1,6 @@
 package com.lh.cachelibrary.strategy;
 
-import com.lh.cachelibrary.CacheProxy;
-
-import java.lang.reflect.Type;
+import com.lh.cachelibrary.cache.CacheMode;
 
 import io.reactivex.Observable;
 
@@ -12,5 +10,7 @@ import io.reactivex.Observable;
  */
 
 public interface Strategy {
-    <T> Observable<T> execute(CacheProxy cacheProxy, Observable<T> origin, String key,Type type);
+    <T> Observable<T> execute(Observable<T> remote,Observable<T> cache);
+
+    CacheMode getCacheMode();
 }

@@ -15,12 +15,12 @@ import java.lang.reflect.Type;
  * 磁盘缓存类
  */
 
-public class DiskCache<T> implements ICache<T> {
+class DiskCache implements ICache {
 
     private DiskLruCache mCache;
     private DiskConverter mConvert;
 
-    public DiskCache(DiskConverter diskConverter, File directory, int appVersion, int valueCount, long maxSize) {
+    DiskCache(DiskConverter diskConverter, File directory, int appVersion, int valueCount, long maxSize) {
         mConvert = diskConverter;
         try {
             mCache = DiskLruCache.open(directory, appVersion, valueCount, maxSize);
@@ -29,13 +29,12 @@ public class DiskCache<T> implements ICache<T> {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public T load(String key, Type type) {
+    public Object load(String key, Type type) {
         if (mCache == null) {
             return null;
         }
-        T result = null;
+        Object result = null;
         InputStream inputStream = null;
         try {
             DiskLruCache.Snapshot snapshot = mCache.get(key);
@@ -53,7 +52,7 @@ public class DiskCache<T> implements ICache<T> {
     }
 
     @Override
-    public boolean save(String key, T data) {
+    public boolean save(String key, Object data) {
         if (mCache == null) {
             return false;
         }

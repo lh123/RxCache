@@ -6,10 +6,10 @@ import android.widget.Toast;
 
 import com.lh.cachelibrary.RxCache;
 import com.lh.cachelibrary.convert.GsonDiskConverter;
-import com.lh.cachelibrary.convert.SerializableDiskConverter;
 import com.lh.cachelibrary.strategy.CacheStrategy;
 import com.lh.cachelibrary.utils.TypeBuilder;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +32,9 @@ public class MainActivity extends AppCompatActivity {
                 .setDiskCachePath(getExternalCacheDir().getAbsolutePath())
                 .setDiskConverter(new GsonDiskConverter())
                 .build();
+        Type type = TypeBuilder.newBuilder(List.class)
+                .addParamType(CacheBean.class)
+                .build();
         Observable
                 .create(new ObservableOnSubscribe<List<CacheBean>>() {
                     @Override
@@ -40,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
                         e.onComplete();
                     }
                 })
-                .compose(rxCache.<List<CacheBean>>transformer("cache", CacheStrategy.priorityRemote(), TypeBuilder.newBuilder().setSelfType(List.class).addParamType(CacheBean.class).build()))
+                .compose(rxCache.<List<CacheBean>>transformer("cache", CacheStrategy.priorityRemote(),type ))
                 .subscribe(new Consumer<List<CacheBean>>() {
                     @Override
                     public void accept(List<CacheBean> cacheBean) throws Exception {

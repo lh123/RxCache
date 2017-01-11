@@ -1,9 +1,6 @@
 package com.lh.cachelibrary.strategy;
 
-import com.lh.cachelibrary.CacheProxy;
 import com.lh.cachelibrary.cache.CacheMode;
-
-import java.lang.reflect.Type;
 
 import io.reactivex.Observable;
 
@@ -12,9 +9,15 @@ import io.reactivex.Observable;
  * 只从Remote获取
  */
 
-class OnlyRemoteStrategy extends BaseStrategy {
+class OnlyRemoteStrategy implements Strategy {
+
     @Override
-    public <T> Observable<T> execute(CacheProxy cacheProxy, Observable<T> origin, String key, Type type) {
-        return loadRemote(origin, cacheProxy, key, CacheMode.BOTH);
+    public <T> Observable<T> execute(Observable<T> remote, Observable<T> cache) {
+        return remote;
+    }
+
+    @Override
+    public CacheMode getCacheMode() {
+        return CacheMode.BOTH;
     }
 }

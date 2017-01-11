@@ -1,9 +1,6 @@
 package com.lh.cachelibrary.strategy;
 
-import com.lh.cachelibrary.CacheProxy;
 import com.lh.cachelibrary.cache.CacheMode;
-
-import java.lang.reflect.Type;
 
 import io.reactivex.Observable;
 
@@ -12,12 +9,15 @@ import io.reactivex.Observable;
  * 优先Remote
  */
 
-class PriorityRemoteStrategy extends BaseStrategy {
+class PriorityRemoteStrategy implements Strategy {
 
     @Override
-    public <T> Observable<T> execute(final CacheProxy cacheProxy, Observable<T> origin, final String key, Type type) {
-        Observable<T> remote = loadRemote(origin, cacheProxy, key, CacheMode.BOTH);
-        Observable<T> cache = loadCache(cacheProxy, key, type);
-        return Observable.concatArrayDelayError(remote, cache).firstElement().toObservable();
+    public <T> Observable<T> execute(Observable<T> remote, Observable<T> cache) {
+        return Observable.concatArrayDelayError(remote,cache).firstElement().toObservable();
+    }
+
+    @Override
+    public CacheMode getCacheMode() {
+        return CacheMode.BOTH;
     }
 }

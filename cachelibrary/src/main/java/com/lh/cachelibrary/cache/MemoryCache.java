@@ -16,15 +16,15 @@ import java.util.HashSet;
  * 内存缓存
  */
 
-public class MemoryCache<T> implements ICache<T> {
+class MemoryCache implements ICache {
 
-    private LruCache<String, T> mCache;
+    private LruCache<String, Object> mCache;
     private HashSet<String> mKeySet;
 
-    public MemoryCache(int maxSize) {
-        mCache = new LruCache<String, T>(maxSize) {
+    MemoryCache(int maxSize) {
+        mCache = new LruCache<String, Object>(maxSize) {
             @Override
-            protected int sizeOf(String key, T value) {
+            protected int sizeOf(String key, Object value) {
                 if (value instanceof Serializable) {
                     SizeCounter sizeCounter = new SizeCounter();
                     ObjectOutputStream os = null;
@@ -45,12 +45,12 @@ public class MemoryCache<T> implements ICache<T> {
     }
 
     @Override
-    public T load(String key, Type type) {
+    public Object load(String key, Type type) {
         return mCache.get(key);
     }
 
     @Override
-    public boolean save(String key, T data) {
+    public boolean save(String key, Object data) {
         mCache.put(key, data);
         mKeySet.add(key);
         return true;

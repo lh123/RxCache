@@ -2,15 +2,16 @@ package com.lh.cachelibrary;
 
 import android.text.TextUtils;
 
+import com.lh.cachelibrary.cache.CacheProxy;
 import com.lh.cachelibrary.convert.DiskConverter;
 import com.lh.cachelibrary.strategy.Strategy;
 
 import java.io.File;
-import java.io.Serializable;
 import java.lang.reflect.Type;
 
 import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableTransformer;
 
 /**
@@ -19,23 +20,39 @@ import io.reactivex.ObservableTransformer;
  */
 
 public class RxCache {
-    private CacheProxy<Serializable> mCache;
+    private CacheProxy mCache;
+    private TransformerHelper mTransformerHelper;
 
     private RxCache(DiskConverter diskConverter, File directory, int appVersion, int valueCount, int memorySize, long diskSize) {
-        mCache = new CacheProxy<>(diskConverter, directory, appVersion, valueCount, memorySize, diskSize);
+        mCache = new CacheProxy(diskConverter, directory, appVersion, valueCount, memorySize, diskSize);
+        mTransformerHelper = new TransformerHelper(mCache);
     }
 
     public <T> ObservableTransformer<T, T> transformer(String key, Strategy strategy) {
         return transformer(key, strategy, null);
     }
 
-    public <T> ObservableTransformer<T, T> transformer(final String key, final Strategy strategy, final Type type) {
-        return new ObservableTransformer<T, T>() {
+    public <T> ObservableTransformer<T, T> transformer(String key, final Strategy strategy, final Type type) {
+        return mTransformerHelper.handlerStrategy(key,strategy,type);
+    }
+
+    public <T> Observable<T> load(final String key, final Type type){
+        return Observable.create(new ObservableOnSubscribe<T>() {
             @Override
-            public ObservableSource<T> apply(Observable<T> upstream) {
-                return strategy.execute(mCache, upstream, key, type);
+            public void subscribe(ObservableEmitter<T> e) throws Exception {
+                T result = (T) mCache.load(key,type);
+                e.onNext(result);
+                e.onComplete();
             }
-        };
+        });
+    }
+
+    public boolean remove(String key){
+        return mCache.remove(key);
+    }
+
+    public void clear(){
+        mCache.clear();
     }
 
     public static class Builder {

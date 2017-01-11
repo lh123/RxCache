@@ -11,20 +11,19 @@ import java.util.List;
  */
 
 public class TypeBuilder {
+
+    private TypeBuilder parent;
     private Type selfType;
     private List<Type> paramTypes;
 
-    public static TypeBuilder newBuilder(){
-        return new TypeBuilder();
+    public static TypeBuilder newBuilder(Type type) {
+        return new TypeBuilder(null, type);
     }
 
-    private TypeBuilder() {
-        paramTypes = new ArrayList<>();
-    }
-
-    public TypeBuilder setSelfType(Type selfType) {
+    private TypeBuilder(TypeBuilder parent, Type selfType) {
+        this.parent = parent;
         this.selfType = selfType;
-        return this;
+        this.paramTypes = new ArrayList<>();
     }
 
     public TypeBuilder addParamType(Type paramType) {
@@ -32,11 +31,33 @@ public class TypeBuilder {
         return this;
     }
 
-    public Type build(){
-        return new ParameterizedTypeImpl(selfType,paramTypes.toArray(new Type[paramTypes.size()]));
+    public TypeBuilder beginNestedType(Type type) {
+        return new TypeBuilder(this, type);
     }
 
-    private static class ParameterizedTypeImpl implements ParameterizedType{
+    public TypeBuilder endNestedType() {
+        if (parent == null) {
+            throw new IllegalStateException("you should call beginNestedType first");
+        }
+        parent.addParamType(buidType());
+        return parent;
+    }
+
+    private Type buidType() {
+        if (paramTypes.size() == 0) {
+            return selfType;
+        }
+        return new ParameterizedTypeImpl(selfType, paramTypes.toArray(new Type[paramTypes.size()]));
+    }
+
+    public Type build() {
+        if (parent != null) {
+            throw new IllegalStateException("you should call endNestedType first");
+        }
+        return buidType();
+    }
+
+    private static class ParameterizedTypeImpl implements ParameterizedType {
         private Type[] paramsType;
         private Type selfType;
 

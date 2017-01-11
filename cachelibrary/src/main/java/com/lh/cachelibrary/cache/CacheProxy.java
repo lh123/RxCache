@@ -1,9 +1,5 @@
-package com.lh.cachelibrary;
+package com.lh.cachelibrary.cache;
 
-import com.lh.cachelibrary.cache.CacheMode;
-import com.lh.cachelibrary.cache.DiskCache;
-import com.lh.cachelibrary.cache.ICache;
-import com.lh.cachelibrary.cache.MemoryCache;
 import com.lh.cachelibrary.convert.DiskConverter;
 import com.lh.cachelibrary.utils.LogUtils;
 
@@ -15,19 +11,19 @@ import java.lang.reflect.Type;
  * 缓存的代理类
  */
 
-public class CacheProxy<T> implements ICache<T> {
+public class CacheProxy implements ICache {
 
-    private DiskCache<T> mDiskCache;
-    private MemoryCache<T> mMemoryCache;
+    private DiskCache mDiskCache;
+    private MemoryCache mMemoryCache;
 
-    CacheProxy(DiskConverter diskConverter, File directory, int appVersion, int valueCount, int memorySize, long diskSize) {
-        mDiskCache = new DiskCache<>(diskConverter, directory, appVersion, valueCount, diskSize);
-        mMemoryCache = new MemoryCache<>(memorySize);
+    public CacheProxy(DiskConverter diskConverter, File directory, int appVersion, int valueCount, int memorySize, long diskSize) {
+        mDiskCache = new DiskCache(diskConverter, directory, appVersion, valueCount, diskSize);
+        mMemoryCache = new MemoryCache(memorySize);
     }
 
     @Override
-    public T load(String key, Type type) {
-        T result = null;
+    public Object load(String key, Type type) {
+        Object result = null;
         if (mMemoryCache != null) {
             result = mMemoryCache.load(key, type);
             if (result != null) {
@@ -43,11 +39,11 @@ public class CacheProxy<T> implements ICache<T> {
     }
 
     @Override
-    public boolean save(String key, T data) {
+    public boolean save(String key, Object data) {
         return save(key, data, CacheMode.BOTH);
     }
 
-    public boolean save(String key, T data, CacheMode mode) {
+    public boolean save(String key, Object data, CacheMode mode) {
         boolean haveCached = false;
         if (mode.canCacheDisk() && mDiskCache != null) {
             mDiskCache.save(key, data);
