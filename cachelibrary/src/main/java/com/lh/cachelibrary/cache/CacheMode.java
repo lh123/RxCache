@@ -2,9 +2,11 @@ package com.lh.cachelibrary.cache;
 
 /**
  * Created by home on 2017/1/10.
+ * 缓存模式
  */
 
 public enum CacheMode {
+    NONE,
     DISK,
     MEMORY,
     BOTH;

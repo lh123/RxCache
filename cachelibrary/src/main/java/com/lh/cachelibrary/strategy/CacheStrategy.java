@@ -11,6 +11,7 @@ public class CacheStrategy {
     private static Strategy PRIORITY_CACHE;
     private static Strategy ONLY_REMOTE;
     private static Strategy ONLY_CACHE;
+    private static Strategy NONE_CACHE;
 
     public static Strategy priorityRemote() {
         if (PRIORITY_REMOTE == null) {
@@ -38,5 +39,12 @@ public class CacheStrategy {
             ONLY_CACHE = new OnlyCacheStrategy();
         }
         return ONLY_CACHE;
+    }
+
+    public static Strategy noneCache(){
+        if (ONLY_CACHE == null){
+            NONE_CACHE = new NoneCacheStrategy();
+        }
+        return NONE_CACHE;
     }
 }
